@@ -1,3 +1,4 @@
+# Intro to Brillig
 BRILLIG - Bytecode Runtime Interface for Liberated Language Implementation... G
 
 The G stands for whatever you like, like [Gabagool](https://en.wikipedia.org/wiki/Gabagool).
@@ -40,5 +41,7 @@ For private functions, the user is the prover, so we don't need to distinguish b
 A virtual machine (VM) is needed to ensure that the protocol always requires valid proofs of knowledge. In this context, a VM is a zero-knowledge circuit that interprets a program. The VM executes program instructions sequentially and uses a public failure flag. If the VM execution reverts, the failure flag is set to one, and if it succeeds, the flag is set to zero. Regardless of the outcome, an honest user will always have a way to create a valid proof.
 
 Design principles
-TODO move to footnote
-The focus of Brillig is on safety, correctness and SNARK proving efficiency. Proving time is expected to take the majority of any realistic Noir program. Future optimization work for pure execution (e.g., transpiling to WASM) can be considered in the future. However, for this to be justified, there would first need to be use cases that are both complicated AND have a constraint-solving cost that is smaller than the running time. This is considered unlikely/niche.
+--- 
+
+The focus of Brillig is on safety, correctness and SNARK proving efficiency. Proving time is expected to take the majority of any realistic Noir program. 
+

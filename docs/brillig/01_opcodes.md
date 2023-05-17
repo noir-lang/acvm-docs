@@ -1,4 +1,3 @@
-
 # Opcode Specifications
 ## BinaryFieldOp
 
