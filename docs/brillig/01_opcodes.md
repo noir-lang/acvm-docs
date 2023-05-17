@@ -214,16 +214,6 @@ Return
 "Return"
 ```
 
-
-## ForeignCall
-
-This opcode executes a foreign function defined by `function`, stores the result in the `destination` register or memory, and passes `input` as arguments to the function.
-
-```markdown
-
-ForeignCall
-```
-
 - ## ForeignCall
 
 This opcode is used to get data from an external source. It requires a function name that is interpreted by the simulator context, a destination register to store the result, and an input register containing the input data. These can be either memory registers (i.e. pointers with a length) or value registers.
