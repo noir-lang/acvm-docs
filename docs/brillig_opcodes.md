@@ -182,7 +182,6 @@ Const {
 ```
 
 
-
 **Wire format example:** 
 
 ```json

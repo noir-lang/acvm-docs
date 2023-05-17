@@ -1,6 +1,6 @@
-BRILLIG - Bytecode Runtime Interface for Liberated Language Implementation
+BRILLIG - Bytecode Runtime Interface for Liberated Language Implementation... G
 
-The G stands for whatever you like, such as [Gabagool](https://en.wikipedia.org/wiki/Capocollo).
+The G stands for whatever you like, like [Gabagool](https://en.wikipedia.org/wiki/Gabagool).
 
 Brillig is a general VM architecture that is used for functions that are unconstrained/non-deterministic from the point of view of the execution prover. As well, it is used for execution in some constrained environments when dealing with shared, public state.
 
