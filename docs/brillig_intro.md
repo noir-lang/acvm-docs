@@ -2,11 +2,12 @@ BRILLIG - Bytecode Runtime Interface for Liberated Language Implementation... G
 
 The G stands for whatever you like, like [Gabagool](https://en.wikipedia.org/wiki/Gabagool).
 
-Brillig is a general VM architecture that is used for functions that are unconstrained/non-deterministic from the point of view of the execution prover. As well, it is used for execution in some constrained environments when dealing with shared, public state.
+Brillig is a general VM architecture for use with Noir.
+It is used for functions that are unconstrained, non-deterministic, or otherwise need a VM. 
 
 Why we need Brillig
 
-Noir is a zero-knowledge virtual machine (zkVM) that specializes in zero-knowledge proofs. Despite its specialization, Noir still requires a general VM for the following reasons:
+Noir is a zero-knowledge language that specializes in zero-knowledge proofs that flexibly can compile code to constraints. Despite its specialization, Noir still requires a general VM for the following reasons:
 
 1) Unconstrained execution
 
