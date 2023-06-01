@@ -1,4 +1,4 @@
-# Opcode Specifications
+# Opcode Listing
 ## BinaryFieldOp
 
 This opcode carries out a binary operation on the contents of the `lhs` and `rhs` registers and stores the result in the `destination` register.
@@ -53,9 +53,7 @@ BinaryIntOp {
 {
   "BinaryIntOp": {
     "destination": 2,
-    "op": {
-      "Cmp": "Lte"
-    },
+    "op": "LessThanEquals",
     "bit_size": 32,
     "lhs": 1,
     "rhs": 0
@@ -71,9 +69,9 @@ This opcode sets the program counter to the value of `location` if the value at 
 ```yaml
 
 JumpIfNot {
-        condition: RegisterIndex,
-        location: Label,
-    }
+    condition: RegisterIndex,
+    location: Label,
+}
 ```
 
 
