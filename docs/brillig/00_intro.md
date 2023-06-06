@@ -3,13 +3,12 @@ BRILLIG - Bytecode Runtime Interface for Liberated Language Implementation... G
 
 The G stands for whatever you like, like [Gabagool](https://en.wikipedia.org/wiki/Gabagool).
 
-Noir can compile to bytecode for Brillig, a general VM architecture for use with Noir.
-It is used for functions that are unconstrained, non-deterministic, or otherwise need a VM. 
+Brillig is a general virtual machine architecture for usage with an NP complete circuit language that aims to incorporate unconstrained or non-deterministic functionality. For example, a language which compiles down to ACIR, can integrate unconstrained funtions into its circuits by also compiling down to Brillig bytecode.
 
 Why we need Brillig
 ---
 
-Noir is a zero-knowledge language that specializes in zero-knowledge proofs that flexibly can compile code to constraints. Despite its specialization, Noir still requires a general VM for the following reasons:
+Zero-knowledge (ZK) domain-specific languages (DSL) enable developers to generate ZK proofs from their programs by compiling code down to the constraints of an NP complete language (such as R1CS or PLONKish languages). However, the hard bounds of a constraint system can be very limiting to the functionality of a ZK DSL, and integrating a general VM is very useful for the following reasons:  
 
 1) Unconstrained execution
 
