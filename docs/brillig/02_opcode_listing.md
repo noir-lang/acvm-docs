@@ -198,6 +198,11 @@ Const {
 
 This opcode sets the program counter to the value at the top of the call stack, removing the top element from the call stack.
 
+These should generally be emitted when a Brillig function wants to exit, unless the Brillig function is the entry-point. A Brillig entry-point should end with a Stop operation.
+
+From a static analysis point of view, Return is the only opcode that can jump to a non-constant program instruction. It aims to be enough to make recursive function calls without having the undesirable effects of arbitrary jumps (see for example discussions such as https://github.com/ethereum/aleth/issues/3404). This ensures that Brillig bytecode can be statically analyzed without a path-narrowing data analysis.
+
+
 ```markdown
 
 Return
@@ -214,14 +219,17 @@ Return
 
 - ## ForeignCall
 
-This opcode is used to get data from an external source. It requires a function name that is interpreted by the simulator context, a destination register to store the result, and an input register containing the input data. These can be either memory registers (i.e. pointers with a length) or value registers.
+This opcode is used to get data from an external source. It works similarly to a low-level syscall in C-like programming architectures, interfacing with the outer system in a way that interrupts the program and updates its memory or registers. From the semantics of execution, and especially proving, it is as if we had an input that we stored that was simply copied when we hit the foreign call.
+
+ForeignCall is used whenever the outer system would better handle data, or in the case of a VM, possibly a constraint unknown to Brillig.
+It is meant to be used generally for any case that an external system needs to interleave with a Noir program. This varies from printing, to setting data in a database. It requires a function name that is interpreted by the simulator context, a destination register to store the result, and an input register containing the input data. These can be either memory registers (i.e. pointers with a length) or value registers. 
 
 ```yaml
 
 ForeignCall {
     function: String,
-    destination: RegisterValueOrArray,
-    input: RegisterValueOrArray,
+    destination: Vec<RegisterValueOrArray>,
+    input: Vec<RegisterValueOrArray>,
 }
 ```
 
@@ -233,12 +241,12 @@ Using value registers
 {
   "ForeignCall": {
     "function": "read_contract_tree",
-    "destination": {
+    "destination": [{
       "RegisterIndex": 1
-    },
-    "input": {
+    }],
+    "input": [{
       "RegisterIndex": 0
-    }
+    }]
   }
 }
 ```
@@ -248,18 +256,18 @@ or, using memory pointer registers
 {
   "ForeignCall": {
     "function": "matrix_2x2_transpose",
-    "destination": {
+    "destination": [{
       "HeapArray": [
         1,
         4
       ]
-    },
-    "input": {
+    }],
+    "input": [{
       "HeapArray": [
         0,
         4
       ]
-    }
+    }]
   }
 }
 ```
@@ -357,6 +365,11 @@ The `Trap` opcode is used to interrupt the normal flow of execution if a runtime
 ## Stop
 
 The `Stop` opcode is used to halt the execution of the program. It does not require any parameters.
+
+It should be used to exit from the outer Brillig program, while most of the Brillig program should use the "Return" opcode. 
+There is no particular requirement on a Brillig program about what states they are allowed to "Stop" in, however, 
+any system using Brillig may impose additional semantics on the final Brilig memory and registers. 
+In this case, a bytecode emitter should make sure that the calling convention of the Brillig program is followed before Stop'ing.
 
 **Wire format example:** 
 
