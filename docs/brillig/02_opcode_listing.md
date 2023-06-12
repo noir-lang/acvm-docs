@@ -219,7 +219,7 @@ Return
 
 - ## ForeignCall
 
-This opcode is used to get data from an external source. It works similarly to a low-level syscall in C-like programming architectures, interfacing with the outer system in a way that interrupts the program and updates its memory or registers. From the semantics of execution, and especially proving, it is as if we had an input that we stored that was simply copied when we hit the foreign call.
+This opcode is used to get data from an external source. It works similarly to a low-level syscall in C-like programming architectures, interfacing with the outer system in a way that interrupts the program and updates its memory or registers. From the semantics of execution and proving, it is as if we had an input that we stored that was simply copied when we hit the foreign call. A simulation pass may indeed store these results, and a later prover simply would consider the opcode as a copy of these results to memory or registers.
 
 ForeignCall is used whenever the outer system would better handle data, or in the case of a VM, possibly a constraint unknown to Brillig.
 It is meant to be used generally for any case that an external system needs to interleave with a Noir program. This varies from printing, to setting data in a database. It requires a function name that is interpreted by the simulator context, a destination register to store the result, and an input register containing the input data. These can be either memory registers (i.e. pointers with a length) or value registers. 
