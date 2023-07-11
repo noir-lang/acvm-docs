@@ -10,7 +10,7 @@ Finite Field VM
 
 The Brillig VM operates over finite fields and supports using up to a 128 bit integer representation. The finite field Brillig supports is generalizable and based upon the field ACIR supports (where [Arkworks](https://github.com/arkworks-rs/algebra/tree/master/ff) is used for the finite field interface). The ACIR fields currently supported are the prime fields of the bn254 curve and the bls12-381 curve. 
 
-All integers ultimately translate to the finite field which Brillig is based upon. For example when a BinartIntOp is used, the field is first cast to a fixed bitsize integer that can be accommodated within the field, prior to performing operations. Certain operations, such as ordered comparison or signed division, only make sense in the context of BinaryIntOp. The exact maximum integer value the field can store should not be relied upon, however, it is assured to be capable of packing 3 32-bit integers.
+All integers ultimately translate to the finite field which Brillig is based upon. For example when a BinaryIntOp is used, the field is first cast to a fixed bitsize integer that can be accommodated within the field, prior to performing operations. Certain operations, such as ordered comparison or signed division, only make sense in the context of BinaryIntOp. The exact maximum integer value the field can store should not be relied upon, however, it is assured to be capable of packing 3 32-bit integers.
 
 The decision to have Brillig operate over finite fields simplifies SNARK proving and optimizes for efficiency, as ultimately all data types translate to a finite field which is the native data type for SNARKs. 
 
