@@ -7,15 +7,15 @@ fn main() {
     let mut a = 10;
     let mut b = 5;
     let mut c = 0;
-    
+
     c = a + b;
-    
+
     if c <= 15 {
         a = a * b;
     } else {
         b = a + b;
     }
-    
+
     print(a, b, c);
 }
 ```
@@ -111,9 +111,10 @@ One possible Brillig output would be:
 ```
 
 The execution and interpretation of the program would be as follows:
-1. The three `Const` instructions load values into reg0, reg1, reg2, reg3. These are variables a, b and c, and a temporary equal to 15
+
+1. The three `Const` instructions load values into reg0, reg1, reg2, and reg3. These are variables a, b and c, and a temporary equal to 15
 2. At location 4, let reg2 (c) equal reg0 plus reg1 (a + b)
 3. Let reg4 (a temporary value) equal reg2 LessThanEquals reg3 (c <= 15)
-4. If reg4 is 0 (so c > 15), jump to location 9 where we set b = a + b then go to location 10. Otherwise if c <= 15, we fall through to location 7, set a = a * b, and then go to location 10.
-5. At location 10, we queue up inputs to a foreign call from reg0, reg1, reg2 (variables a, b, and c). This interrupts execution, calls to the outer system, and then returns to Brillig execution. If this had outputs, they might be written to registers and memory.
-6. We finally reach the final location where we `Stop`. If this were a function to be called by another Brillig function, we would `Return`.
+4. If reg4 is 0 (so c > 15), jump to location 9, where we set b = a + b, then go to location 10. Otherwise, if c <= 15, we fall through to location 7, set a = a \* b, and then go to location 10.
+5. At location 10, we queue up inputs to a foreign call from reg0, reg1, and reg2 (variables a, b, and c). This interrupts execution, calls to the outer system, and then returns to Brillig execution. If this had outputs, they might be written to registers and memory.
+6. We finally reach the final location where we `Stop`. If this were a function to be called by another Brillig function, we would say `Return`.
