@@ -6,10 +6,10 @@ This opcode carries out a binary operation on the contents of the `lhs` and `rhs
 ```yaml
 
 BinaryFieldOp {
-        destination: RegisterIndex,
+        destination: MemoryAddress,
         op: BinaryFieldOp,
-        lhs: RegisterIndex,
-        rhs: RegisterIndex,
+        lhs: MemoryAddress,
+        rhs: MemoryAddress,
     }
 ```
 
@@ -20,10 +20,10 @@ BinaryFieldOp {
 
 {
   "BinaryFieldOp": {
-    "destination": 0,
+    "destination": "Relative(3)",
     "op": "Add",
-    "lhs": 1,
-    "rhs": 2
+    "lhs": "Relative(1)",
+    "rhs": "Relative(2)"
   }
 }
 ```
@@ -35,12 +35,12 @@ This opcode carries out a binary operation on the `bit_size`-sized integers in t
 
 ```yaml
 
-BinaryIntOp {
-        destination: RegisterIndex,
+    BinaryIntOp {
+        destination: MemoryAddress,
         op: BinaryIntOp,
-        bit_size: u32,
-        lhs: RegisterIndex,
-        rhs: RegisterIndex,
+        bit_size: IntegerBitSize,
+        lhs: MemoryAddress,
+        rhs: MemoryAddress,
     }
 ```
 
@@ -49,40 +49,80 @@ BinaryIntOp {
 **Wire format example:** 
 
 ```json
-
 {
   "BinaryIntOp": {
-    "destination": 2,
+    "destination": "Relative(2)",
     "op": "LessThanEquals",
-    "bit_size": 32,
-    "lhs": 1,
-    "rhs": 0
+    "bit_size": "U32",
+    "lhs": "Relative(1)",
+    "rhs": "Relative(0)"
+  }
+}
+```
+## Not
+  This opcode performs a bitwise NOT operation, of `bit_size` size, on the value in the `source` address and stores the result in the `destination`.
+
+```yaml
+    Not {
+        destination: MemoryAddress,
+        source: MemoryAddress,
+        bit_size: IntegerBitSize,
+    }
+```
+
+**Wire format example:** 
+
+```json
+{
+  "Not": {
+    "destination": "Relative(2)",
+    "source": "Relative(1)",
+    "bit_size": "Integer(U32)",
   }
 }
 ```
 
+## Cast
+  This opcode casts (truncate) the value in the `source` address to `bit_size` bits and stores the result in the `destination`.
 
+```yaml
+    Cast {
+        destination: MemoryAddress,
+        source: MemoryAddress,
+        bit_size: BitSize,
+    }
+```
+**Wire format example:** 
+
+```json
+{
+  "Cast": {
+    "destination": "Direct(32836)",
+    "source": "Direct(32836)",
+    "bit_size": "Integer(U32)"
+  }
+}
+```
 ## JumpIfNot
 
 This opcode sets the program counter to the value of `location` if the value at `condition` register is zero.
 
 ```yaml
 
-JumpIfNot {
-    condition: RegisterIndex,
-    location: Label,
-}
+    JumpIfNot {
+        condition: MemoryAddress,
+        location: Label,
+    }
 ```
-
 
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "JumpIfNot": {
-    "condition": 3,
+    "condition": Relative(4),
     "location": 10
   }
 }
@@ -96,7 +136,7 @@ This opcode sets the program counter to the value of `location` if the value at 
 ```yaml
 
 JumpIf {
-        condition: RegisterIndex,
+        condition: MemoryAddress,
         location: Label,
     }
 ```
@@ -105,11 +145,11 @@ JumpIf {
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "JumpIf": {
-    "condition": 2,
+    "condition": Relative(1),
     "location": 10
   }
 }
@@ -131,7 +171,7 @@ Jump {
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "Jump": {
@@ -140,12 +180,35 @@ Jump {
 }
 ```
 
+## CallDataCopy
+This opcode copies `size_address` bytes at the `offset_address` position in the calldata, into the `destination` address.
+
+```yaml
+  CalldataCopy {
+        destination_address: MemoryAddress,
+        size_address: MemoryAddress,
+        offset_address: MemoryAddress,
+  },
+```
+
+**Wire format example:** 
+
+```yaml
+
+{
+  "CalldataCopy": {
+    destination_address: Direct(32836),
+    size_address: Relative(2),
+    offset_address: Relative(3) 
+  }
+}
+```
 
 ## Call
 
 This opcode sets the program counter to the value of `location` and pushes the next address to the call stack.
 
-```css
+```yaml
 
 Call {
         location: Label,
@@ -173,27 +236,46 @@ This opcode stores a `value` in the `destination` register.
 ```yaml
 
 Const {
-        destination: RegisterIndex,
-        value: Value,
+        destination: MemoryAddress,
+        bit_size: BitSize,
+        value: F,
     }
 ```
 
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "Const": {
-    "destination": 0,
-    "value": {
-      "inner": "0000000000000000000000000000000000000000000000000000000000000000"
-    }
+    destination: Direct(10),
+    bit_size: Integer(U32)
+    value: 32838
   }
 }
 ```
+## Indirect Const
+This opcode stores the `value` at the address pointed inside `destination_pointer`.
+``` yaml
+  IndirectConst {
+        destination_pointer: MemoryAddress,
+        bit_size: BitSize,
+        value: F,
+  }
+```
+**Wire format example:** 
 
+```yaml
 
+{
+  "IndirectConst": {
+    destination: Direct(10),
+    bit_size: Integer(U64)
+    value: 17843811134343075018
+  }
+}
+```
 ## Return
 
 This opcode sets the program counter to the value at the top of the call stack, removing the top element from the call stack.
@@ -203,7 +285,7 @@ These should generally be emitted when a Brillig function wants to exit, unless 
 From a static analysis point of view, Return is the only opcode that can jump to a non-constant program instruction. It aims to be enough to make recursive function calls without having the undesirable effects of arbitrary jumps (see for example discussions such as https://github.com/ethereum/aleth/issues/3404). This ensures that Brillig bytecode can be statically analyzed without a path-narrowing data analysis.
 
 
-```markdown
+```yaml
 
 Return
 ```
@@ -222,17 +304,18 @@ Return
 This opcode is used to get data from an external source. It works similarly to a low-level syscall in C-like programming architectures, interfacing with the outer system in a way that interrupts the program and updates its memory or registers. From the semantics of execution and proving, it is as if we had an input that we stored that was simply copied when we hit the foreign call. A simulation pass may indeed store these results, and a later prover simply would consider the opcode as a copy of these results to memory or registers.
 
 ForeignCall is used whenever the outer system would better handle data, or in the case of a VM, possibly a constraint unknown to Brillig.
-It is meant to be used generally for any case that an external system needs to interleave with a Noir program. This varies from printing, to setting data in a database. It requires a function name that is interpreted by the simulator context, a destination register to store the result, and an input register containing the input data. These can be either memory registers (i.e. pointers with a length) or value registers. 
+It is meant to be used generally for any case that an external system needs to interleave with a Noir program. This varies from printing, to setting data in a database. It requires a function name that is interpreted by the simulator context, a memory address for the input data and the output data, to store the result, a. It can reference either array/vector (i.e. pointers with a length) or a value. 
 
 ```yaml
 
 ForeignCall {
-    function: String,
-    destination: Vec<RegisterValueOrArray>,
-    input: Vec<RegisterValueOrArray>,
+    function: "print",
+    destination: [],
+    destination_value_types: [],
+    input: [MemoryAddress(Relative(1)), HeapArray(HeapArray { pointer: Relative(4), size: 16 }), HeapArray(HeapArray { pointer: Relative(5), size: 72 }), MemoryAddress(Relative(3))],
+    input_value_types: [Simple(Integer(U1)), Array { value_types: [Simple(Integer(U8))], size: 16 }, Array { value_types: [Simple(Integer(U8))], size: 72 }, Simple(Integer(U1))]
 }
 ```
-
 
 
 **Wire format example:** 
@@ -274,24 +357,53 @@ or, using memory pointer registers
 
 ## Mov
 
-The `Mov` opcode is used to move the content of the source register to the destination register.
+The `Mov` opcode is used to move the content in the `source` address to the `destination` address.
 
 ```yaml
 
 Mov {
-    destination: RegisterIndex,
-    source: RegisterIndex,
+    destination: MemoryAddress,
+    source: MemoryAddress,
 }
 ```
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "Mov": {
-    "destination": 0,
-    "source": 1
+    "destination": Direct(2),
+    "source": Direct(1)
+  }
+}
+```
+
+
+## Conditional Mov
+
+The `Conditional Mov` opcode is used to move the content in the `source_a` or `source_b` address to the `destination` address, depending on the value of the `condition` value.
+
+```yaml
+
+Mov {
+    destination: MemoryAddress,
+    source_a: MemoryAddress,
+    source_b: MemoryAddress,
+    condition: MemoryAddress,
+}
+```
+
+**Wire format example:** 
+
+```yaml
+
+{
+  "ConditionalMov": {
+    "destination": Direct(4),
+    source_a: Direct(1),
+    source_b: Direct(2),
+    condition: Direct(3)
   }
 }
 ```
@@ -303,8 +415,8 @@ The `Load` opcode retrieves data from memory at the address specified by the sou
 ```yaml
 
 Load {
-    destination: RegisterIndex,
-    source_pointer: RegisterIndex,
+    destination: MemoryAddress,
+    source_pointer: MemoryAddress,
 }
 ```
 
@@ -312,12 +424,12 @@ Load {
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "Load": {
-    "destination": 0,
-    "source_pointer": 1
+    "destination": Relative(1),
+    "source_pointer": Relative(2)
   }
 }
 ```
@@ -330,8 +442,8 @@ The `Store` opcode takes the content of the source register and stores it in the
 ```yaml
 
 Store {
-    destination_pointer: RegisterIndex,
-    source: RegisterIndex,
+    destination_pointer: MemoryAddress,
+    source: MemoryAddress
 }
 ```
 
@@ -339,32 +451,72 @@ Store {
 
 **Wire format example:** 
 
-```json
+```yaml
 
 {
   "Store": {
-    "destination_pointer": 0,
-    "source": 1
+    "destination_pointer": Relative(2),
+    "source": Relative(3)
   }
 }
 ```
 
+## BlackBox
 
-## Trap
+BlackBox opcodes are used to call some functions that are natively executed by the Brillig VM. They correspond to ACIR blackbox functions.
 
-The `Trap` opcode is used to interrupt the normal flow of execution if a runtime error occurs. It does not require any parameters.
+```yaml
+    BlackBox(BlackBoxOp),
+```
 
-**Wire format example:** 
-
-```json
-
-"Trap"
+The BlackBoxOp varies depending on the operation.  For instance Keccakf1600 will perform Keccak permutation.
+```yaml
+Keccakf1600 { input: HeapArray, output: HeapArray },
 ```
 
 
+**Wire format example:** 
+
+```yaml
+
+{
+  BlackBox(AES128Encrypt { 
+    inputs: HeapVector { pointer: Relative(5), size: Relative(6) },
+    iv: HeapArray { pointer: Relative(7), size: 16 },
+    key: HeapArray { pointer: Relative(8), size: 16 },
+    outputs: HeapVector { pointer: Relative(9), size: Relative(10) }
+  })
+}
+```
+
+## Trap
+
+The `Trap` opcode is used to interrupt the normal flow of execution if a runtime error occurs.
+It returns the data specified in the `revert_data` vector.
+
+
+
+```yaml
+
+"Trap": {
+        revert_data: HeapVector,
+    }
+```
+
+**Wire format example:** 
+
+```yaml
+
+{
+  "Trap": {
+    revert_data: HeapVector { pointer: Direct(1), size: Direct(2) } 
+  }
+}
+```
+
 ## Stop
 
-The `Stop` opcode is used to halt the execution of the program. It does not require any parameters.
+The `Stop` opcode is used to halt the execution of the program. It returns the data specified in the `return_data` vector.
 
 It should be used to exit from the outer Brillig program, while most of the Brillig program should use the "Return" opcode. 
 There is no particular requirement on a Brillig program about what states they are allowed to "Stop" in, however, 
@@ -373,7 +525,9 @@ In this case, a bytecode emitter should make sure that the calling convention of
 
 **Wire format example:** 
 
-```json
+```yaml
 
-"Stop"
+"Stop": {
+        return_data: HeapVector { pointer: Relative(2), size: Relative(3) } ,
+    }
 ```
